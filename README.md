@@ -1,5 +1,5 @@
 # ScaleNet
-ScaleNet: Searching for the Model to Scale (ECCV 2022)
+ScaleNet: Searching for the Model to Scale (ECCV 2022)[ECVA](XXX "ECVA") or [ArXiv](XXX "ArXiv")
 
 ## Requirements
 - python >= 3.6
@@ -8,10 +8,13 @@ ScaleNet: Searching for the Model to Scale (ECCV 2022)
 
 ## Super-supernet Training
 - Download datasets
-- run: `bash train.sh`
+- Run: `bash train.sh`
 
 ## Searching
-- run: `bash search.sh`
+- Run: `bash search.sh`
+
+## Retraining
+- Please directly apply the package [TIMM](https://github.com/rwightman/pytorch-image-models "TIMM").
 
 ## Warning
 - dataloader and dataset may need to be modified for adapting your environment.

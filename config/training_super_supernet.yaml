@@ -101,4 +101,4 @@ search:
             task: 'imagenet'
             json_path: /mnt/lustre/xiejiyang/nas/imagenet.json
             prefix: '/mnt/lustreold/share/images/train'
-            batch_size: 8 # for single gpu
+            batch_size: 8 # for single gpu 

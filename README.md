@@ -1,5 +1,5 @@
 # ScaleNet
-ScaleNet: Searching for the Model to Scale (ECCV 2022)[ECVA](XXX "ECVA") or [ArXiv](XXX "ArXiv")
+ScaleNet: Searching for the Model to Scale (ECCV 2022) [ECVA](https://XXX "ECVA") or [ArXiv](https://XXX "ArXiv")
 
 ## Requirements
 - python >= 3.6

@@ -14,7 +14,7 @@ ScaleNet: Searching for the Model to Scale (ECCV 2022)
 - run: `bash search.sh`
 
 ## Warning
-- dataloader and dataset may need to be modified for adapting your evironment.
+- dataloader and dataset may need to be modified for adapting your environment.
 
 ## Citation
 If you find this paper useful in your research, please consider citing:

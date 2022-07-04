@@ -18,5 +18,4 @@ srun --partition=$partition \
 --job-name=$job_name \
 --kill-on-bad-exit=1 \
 --cpus-per-task=7 \
--x BJ-IDC1-10-10-16-[56,83,87,88] \
 python -u tools/agent_run.py $options

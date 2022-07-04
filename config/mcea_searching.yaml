@@ -1,0 +1,154 @@
+model:
+        # Search space of base model
+        # [n, stride, c_in, c_out, [expand_ratio], channel_search, [op1, op2, op3]]
+        # NOTICE: by default, in a stage, only first layer will use stride!=1 and change channel to oup
+    backbone:
+        conv_stem: [1, 2, 3, 32, [], False, ['conv3x3']]
+        stage1: [1, 1, 32, 16, [[1], [1], [1], [1]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage2: [4, 2, 16, 32, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage3: [4, 2, 32, 40, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage4: [4, 2, 40, 80, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage5: [4, 1, 80, 96, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage6: [4, 2, 96, 192, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        stage7: [1, 1, 192, 320, [[1], [6], [6], [6]], False, 
+                ['id', 'ir_3x3_se', 'ir_5x5_se', 'ir_7x7_se']]
+        conv_out: [1, 1, 320, 1280, [], False, ['conv2d']]
+        final_pooling: True
+    head:
+        linear1:
+          dim_in: 1280
+          dim_out: 1000
+    loss_type: 's-softmax'
+
+search:
+    flag: False
+    searcher:
+        type: ['uniform']
+        start_iter: [0]
+        depth_multiplier: [[1.00], # scaling stage 0
+                           [1.04, 1.08, 1.12, 1.16], # scaling stage 1
+                           [1.20, 1.24, 1.28, 1.32, 1.36], # scaling stage 2
+                           [1.40, 1.44, 1.48, 1.52, 1.56, 1.60, 1.64]] # scaling stage 3
+        channel_multiplier: [[1.00], # scaling stage 0
+                             [1.04, 1.08, 1.12, 1.16], # scaling stage 1
+                             [1.20, 1.24, 1.28, 1.32, 1.36], # scaling stage 2
+                             [1.40, 1.44, 1.48, 1.52, 1.56, 1.60, 1.64]] # scaling stage 3
+        resolution_multiplier: [[224],
+                                [224, 240, 256], 
+                                [272, 288, 304], 
+                                [320, 336, 354]]
+        max_scaling_stage: 3 # int
+        n_laterally_couplng: 2 # n-laterally couplng for channels, n=2^j, 
+                               # 0 or 1: AutoSlim, 2: BCNet
+        asyn: True # Asynchronous n-laterally couplng for channels
+
+    strategy:
+        max_iter: 750000
+        optimizer:
+            type: 'SGD'
+            lr: 0.12
+            weight_decay: 0.00004
+            momentum: 0.9
+            nesterov: True
+        lr_scheduler:
+            lr_steps: [50080, 100160, 125200]
+            lr_mults: [0.1, 0.1, 0.1]
+            warmup_steps: 375
+            warmup_strategy: 'gradual'
+            warmup_lr: 0.2
+            decay_stg: 'cosine'
+            # final lr in cosine strategy
+            alpha: 0.
+            # how many iterations it takes to decay lr to 'alpha'
+            decay_step: 750000
+
+        task_type: 'imagenet'
+        snapshot_freq: 1000
+        print_freq: 100
+        resume: True
+        save_path: '../generalNAS_exp/scaling'
+        load_name: 'latest.pth.tar'
+
+    data:
+        workers: 6  # dataloader worker num
+        task_type: 'imagenet'
+        data_type: 'ssst'
+        scatter_mode: False
+        final_height: 224
+        final_width: 224
+        final_channel: 3
+        augmentation:
+            rand_resize:
+                output_size: 224
+                scale: [0.08, 1.0]
+                ratio: [0.75, 1.33]
+            # resize
+            resize:
+                output_size: [224, 224]
+            # normalize
+            normalize:
+                normalize_type: 'mean_std'
+                mean: [123.675, 116.28, 103.53]
+                std: [58.395, 57.120, 57.375]
+        imagenet:
+            type: 'classification'
+            task: 'imagenet'
+            json_path: /mnt/lustre/xiejiyang/nas/imagenet.json
+            prefix: '/mnt/lustreold/share/images/train'
+            batch_size: 8 # for single gpu
+
+sample:
+    flag: True
+    sampler:
+        type: 'evolution'
+        kwargs:
+            flops_constraint: 306e6
+            pop_size: 64
+            n_gens: 40
+            sample_num: 50
+
+            pop_size_scaling: 64
+            n_gens_scaling: 40
+            sample_num_scaling: 50
+            n_basenet: 20
+            admm_iter: 8
+            max_scaling_stage: 3
+    strategy:
+        task_type: 'imagenet-test'
+        snapshot_freq: 1000
+        print_freq: 100
+        save_path: '../generalNAS_exp/scaling'
+        load_name: 'latest.pth.tar'
+        resume_name: 'arch_topk.yaml'
+
+    data:
+        workers: 128  # dataloader worker num
+        task_type: 'imagenet-test'
+        data_type: 'ssst'
+        scatter_mode: False
+        final_height: 224
+        final_width: 224
+        final_channel: 3
+        augmentation:
+            # resize
+            resize:
+                output_size: 256
+            center_crop:
+                output_size: 224
+            # normalize
+            normalize:
+                normalize_type: 'mean_std'
+                mean: [123.675, 116.28, 103.53]
+                std: [58.395, 57.120, 57.375]
+        imagenet:
+            type: 'classification'
+            task: 'imagenet'
+            json_path: '/mnt/lustre/xiejiyang/nas/imagenet_minival.json' #'/mnt/lustre/xiejiyang/nas/imagenet_val.json'
+            prefix: '/mnt/lustreold/share/images/val'
+            batch_size: 64 # for single gpu

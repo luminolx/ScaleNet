@@ -1,5 +1,5 @@
 # ScaleNet
-ScaleNet: Searching for the Model to Scale (ECCV 2022) [ECVA](https://XXX "ECVA") or [ArXiv](https://XXX "ArXiv")
+ScaleNet: Searching for the Model to Scale (ECCV 2022) [ECVA](https://www.ecva.net/papers.php "ECVA") or [ArXiv](https://arxiv.org/abs/2207.07267 "ArXiv")
 
 ## Requirements
 - python >= 3.6

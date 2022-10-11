@@ -5,6 +5,8 @@ ScaleNet: Searching for the Model to Scale (ECCV 2022) [ECVA](https://XXX "ECVA"
 - python >= 3.6
 - 1.0.0 <= PyTorch <= 1.3.0
 - torchvision >= 0.3.0
+- pymoo == 0.3.0
+- pymop == latest version
 
 ## Super-supernet Training
 - Download datasets
